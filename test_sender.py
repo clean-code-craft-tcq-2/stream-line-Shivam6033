@@ -24,18 +24,20 @@ class TestSender:
         returned_value = sender.get_temperature()
         assert returned_value == 43
 
-    @staticmethod
-    def split_string(string: str, delimiter: str):
-        return [x for x in string.split(delimiter) if x]
-
     @mock.patch('sender.get_temperature')
     @mock.patch('sender.convert_a2d_to_amps')
-    def test_send_data_to_console(self, mock_obj_a2d_to_amps, mock_obj_temp, capsys):
+    @mock.patch('builtins.print')
+    def test_send_data_to_console(self, mock_obj_print, mock_obj_a2d_to_amps, mock_obj_temp):
         mock_obj_a2d_to_amps.return_value = 10
         mock_obj_temp.return_value = 50
         sender.send_data_to_console()
-        output, error = capsys.readouterr()
-        console_output = self.split_string(output, '\n')
-        assert len(console_output) == 50
-        for items in console_output:
-            assert items == 'Amps: 10, Temp: 50'
+        mock_obj_print.assert_called_with('Amps: 10, Temp: 50')
+
+
+if __name__ == "__main__":
+    obj = TestSender()
+    obj.test_get_a2d_data()
+    obj.test_convert_a2d_to_amps()
+    obj.test_get_temperature()
+    obj.test_send_data_to_console()
+
